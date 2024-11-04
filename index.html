@@ -3,143 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Movement Game</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #f0f8ff;
-            margin: 0;
-        }
-
-        #game {
-            position: relative;
-            width: 600px;
-            height: 400px;
-            background-color: #eee;
-            border: 2px solid #333;
-        }
-
-        #player {
-            position: absolute;
-            width: 30px;
-            height: 30px;
-            background-color: #00f;
-            border-radius: 5px;
-        }
-
-        .obstacle {
-            position: absolute;
-            width: 50px;
-            height: 50px;
-            background-color: #f00;
-        }
-
-        #goal {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #0f0;
-            border-radius: 10px;
-            top: 350px;
-            left: 550px;
-        }
-    </style>
+    <title>Static 8-Bit Maze Game</title>
 </head>
 <body>
+    <h1>8-Bit Maze Game - Static Representation</h1>
 
-<div id="game">
-    <div id="player"></div>
-    <div id="goal"></div>
-    <div class="obstacle" style="top: 100px; left: 150px;"></div>
-    <div class="obstacle" style="top: 200px; left: 300px;"></div>
-    <div class="obstacle" style="top: 150px; left: 450px;"></div>
-</div>
+    <h2>Level 1</h2>
+    <pre>
+    ##########
+    #        #
+    # ## ### #
+    #    #   #
+    ###### ## #
+    #        #
+    ##########
+    </pre>
 
-<script>
-    const player = document.getElementById('player');
-    const goal = document.getElementById('goal');
-    const obstacles = document.querySelectorAll('.obstacle');
-    let level = 1;
+    <h2>Level 2</h2>
+    <pre>
+    ##########
+    #     ## #
+    # ### ## #
+    # #   #  #
+    ## # ### #
+    #        #
+    ##########
+    </pre>
 
-    const playerSpeed = 10;
-    let playerX = 0;
-    let playerY = 0;
+    <h2>Level 3</h2>
+    <pre>
+    ##########
+    #   ##   #
+    # ### ### #
+    # #   #   #
+    # ### # ###
+    #        #
+    ##########
+    </pre>
 
-    function checkCollision(rect1, rect2) {
-        return (
-            rect1.left < rect2.right &&
-            rect1.right > rect2.left &&
-            rect1.top < rect2.bottom &&
-            rect1.bottom > rect2.top
-        );
-    }
+    <h2>Level 4</h2>
+    <pre>
+    ##########
+    #    ### #
+    # ### # # #
+    # #   #   #
+    ### ### ###
+    #        #
+    ##########
+    </pre>
 
-    function movePlayer(dx, dy) {
-        playerX += dx;
-        playerY += dy;
-        player.style.left = `${playerX}px`;
-        player.style.top = `${playerY}px`;
+    <!-- Add more levels as needed -->
 
-        const playerRect = player.getBoundingClientRect();
-        const goalRect = goal.getBoundingClientRect();
-
-        // Check if player reached the goal
-        if (checkCollision(playerRect, goalRect)) {
-            alert(`Level ${level} complete!`);
-            loadNextLevel();
-        }
-
-        // Check if player collides with obstacles
-        obstacles.forEach(obstacle => {
-            const obstacleRect = obstacle.getBoundingClientRect();
-            if (checkCollision(playerRect, obstacleRect)) {
-                alert('You hit an obstacle! Try again.');
-                resetLevel();
-            }
-        });
-    }
-
-    function resetLevel() {
-        playerX = 0;
-        playerY = 0;
-        player.style.left = `${playerX}px`;
-        player.style.top = `${playerY}px`;
-    }
-
-    function loadNextLevel() {
-        level++;
-        resetLevel();
-        // Add new obstacles or rearrange for next level here.
-        // For simplicity, we'll just alert the level number here.
-        if (level > 20) {
-            alert('Congratulations! You completed all levels!');
-            level = 1; // Reset game or add end game sequence
-        } else {
-            alert(`Welcome to level ${level}`);
-        }
-    }
-
-    document.addEventListener('keydown', (e) => {
-        switch (e.key) {
-            case 'w': case 'ArrowUp':    // Move up
-                movePlayer(0, -playerSpeed);
-                break;
-            case 's': case 'ArrowDown':  // Move down
-                movePlayer(0, playerSpeed);
-                break;
-            case 'a': case 'ArrowLeft':  // Move left
-                movePlayer(-playerSpeed, 0);
-                break;
-            case 'd': case 'ArrowRight': // Move right
-                movePlayer(playerSpeed, 0);
-                break;
-        }
-    });
-</script>
-
+    <footer>
+        <p>Use your imagination to navigate through the mazes!</p>
+    </footer>
 </body>
 </html>
