@@ -1,112 +1,102 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Cooking Mama Game</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      background-color: #ffe5b4;
-    }
-    #game {
-      width: 500px;
-      padding: 20px;
-      background-color: #fff5e1;
-      border: 2px solid #ccc;
-      text-align: center;
-      border-radius: 10px;
-    }
-    #game h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-    }
-    .step {
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
-    .feedback {
-      color: green;
-      font-weight: bold;
-      margin-top: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      margin: 5px;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .active {
-      background-color: #ffcc00;
-      color: #333;
-    }
-  </style>
-</head>
-<body>
+// script.js
 
-<div id="game">
-  <h1>Cooking Mama: Salad Recipe</h1>
-  <div id="instruction" class="step">Step 1: Chop the vegetables.</div>
-  <div id="feedback" class="feedback"></div>
-  <button id="chop" class="active">Chop Vegetables</button>
-  <button id="add-lettuce">Add Lettuce</button>
-  <button id="add-dressing">Add Dressing</button>
-  <button id="mix">Mix Ingredients</button>
-</div>
+// Select player and items
+const player = document.getElementById("player");
+const items = document.querySelectorAll(".item");
+const obstacles = document.querySelectorAll(".obstacle");
 
-<script>
-  const instruction = document.getElementById("instruction");
-  const feedback = document.getElementById("feedback");
+// Player position
+let playerX = 10;
+let playerY = 10;
 
-  const steps = [
-    { action: "chop", text: "Step 1: Chop the vegetables." },
-    { action: "add-lettuce", text: "Step 2: Add the lettuce to the bowl." },
-    { action: "add-dressing", text: "Step 3: Pour dressing over the salad." },
-    { action: "mix", text: "Step 4: Mix everything together!" }
-  ];
+// Item collection tracker
+let collectedItems = 0;
 
-  let currentStep = 0;
-
-  function checkStep(action) {
-    if (action === steps[currentStep].action) {
-      feedback.textContent = "Good job!";
-      currentStep++;
-
-      if (currentStep < steps.length) {
-        instruction.textContent = steps[currentStep].text;
-      } else {
-        instruction.textContent = "Well done! You've completed the salad!";
-        feedback.textContent = "Mama's proud of you!";
-      }
-
-      updateButtons();
-    } else {
-      feedback.textContent = "Oops! That's not right.";
-    }
+// Key event listener for movement
+document.addEventListener("keydown", (event) => {
+  switch (event.key) {
+    case "ArrowUp":
+    case "w":
+      movePlayer(0, -10);
+      break;
+    case "ArrowDown":
+    case "s":
+      movePlayer(0, 10);
+      break;
+    case "ArrowLeft":
+    case "a":
+      movePlayer(-10, 0);
+      break;
+    case "ArrowRight":
+    case "d":
+      movePlayer(10, 0);
+      break;
   }
+});
 
-  function updateButtons() {
-    document.querySelectorAll("button").forEach((button) => {
-      button.classList.remove("active");
-    });
+// Function to move the player and check for collisions
+function movePlayer(dx, dy) {
+  playerX += dx;
+  playerY += dy;
 
-    if (currentStep < steps.length) {
-      document.getElementById(steps[currentStep].action).classList.add("active");
+  // Keep player within bounds
+  if (playerX < 0) playerX = 0;
+  if (playerX > 570) playerX = 570;
+  if (playerY < 0) playerY = 0;
+  if (playerY > 370) playerY = 370;
+
+  player.style.left = playerX + "px";
+  player.style.top = playerY + "px";
+
+  // Check for item collection
+  items.forEach((item) => {
+    if (isCollision(player, item)) {
+      item.style.display = "none"; // Hide the collected item
+      collectedItems += 1;
+      checkWin();
     }
+  });
+
+  // Check for obstacles
+  obstacles.forEach((obstacle) => {
+    if (isCollision(player, obstacle)) {
+      alert("You hit an obstacle! Game over.");
+      resetGame();
+    }
+  });
+}
+
+// Check if player has won
+function checkWin() {
+  if (collectedItems === items.length) {
+    alert("You collected all items! You win!");
+    resetGame();
   }
+}
 
-  document.getElementById("chop").addEventListener("click", () => checkStep("chop"));
-  document.getElementById("add-lettuce").addEventListener("click", () => checkStep("add-lettuce"));
-  document.getElementById("add-dressing").addEventListener("click", () => checkStep("add-dressing"));
-  document.getElementById("mix").addEventListener("click", () => checkStep("mix"));
-</script>
+// Collision detection function
+function isCollision(obj1, obj2) {
+  const rect1 = obj1.getBoundingClientRect();
+  const rect2 = obj2.getBoundingClientRect();
 
-</body>
-</html>
+  return !(
+    rect1.top > rect2.bottom ||
+    rect1.bottom < rect2.top ||
+    rect1.left > rect2.right ||
+    rect1.right < rect2.left
+  );
+}
+
+// Reset game function
+function resetGame() {
+  playerX = 10;
+  playerY = 10;
+  collectedItems = 0;
+  player.style.left = playerX + "px";
+  player.style.top = playerY + "px";
+
+  // Reset items
+  items.forEach((item) => {
+    item.style.display = "block";
+  });
+}
