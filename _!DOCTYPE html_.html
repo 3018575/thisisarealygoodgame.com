@@ -1,96 +1,112 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Interactive Adventure Game</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            background-color: #e6f7ff;
-        }
-        #gameContainer {
-            position: relative;
-            width: 600px;
-            height: 400px;
-            border: 2px solid #333;
-            background-color: #fff;
-            overflow: hidden;
-        }
-        .character {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #ffcccb;
-            border-radius: 50%;
-        }
-        .obstacle {
-            position: absolute;
-            width: 60px;
-            height: 60px;
-            background-color: #555;
-            top: 150px;
-            left: 250px;
-        }
-        .quest {
-            position: absolute;
-            width: 40px;
-            height: 40px;
-            background-color: #99cc99;
-            border-radius: 50%;
-            top: 50px;
-            left: 500px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cooking Mama Game</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #ffe5b4;
+    }
+    #game {
+      width: 500px;
+      padding: 20px;
+      background-color: #fff5e1;
+      border: 2px solid #ccc;
+      text-align: center;
+      border-radius: 10px;
+    }
+    #game h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    .step {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+    .feedback {
+      color: green;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .active {
+      background-color: #ffcc00;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-    <div id="gameContainer">
-        <div class="character" id="character" style="top: 180px; left: 20px;"></div>
-        <div class="obstacle"></div>
-        <div class="quest" id="quest"></div>
-    </div>
-    <script>
-        const character = document.getElementById('character');
-        const gameContainer = document.getElementById('gameContainer');
-        const quest = document.getElementById('quest');
-        let characterX = 20;
-        let characterY = 180;
 
-        document.addEventListener('keydown', (event) => {
-            const key = event.key;
-            switch (key) {
-                case 'ArrowUp':
-                    if (characterY > 0) characterY -= 10;
-                    break;
-                case 'ArrowDown':
-                    if (characterY < gameContainer.clientHeight - character.clientHeight) characterY += 10;
-                    break;
-                case 'ArrowLeft':
-                    if (characterX > 0) characterX -= 10;
-                    break;
-                case 'ArrowRight':
-                    if (characterX < gameContainer.clientWidth - character.clientWidth) characterX += 10;
-                    break;
-            }
-            character.style.top = `${characterY}px`;
-            character.style.left = `${characterX}px`;
+<div id="game">
+  <h1>Cooking Mama: Salad Recipe</h1>
+  <div id="instruction" class="step">Step 1: Chop the vegetables.</div>
+  <div id="feedback" class="feedback"></div>
+  <button id="chop" class="active">Chop Vegetables</button>
+  <button id="add-lettuce">Add Lettuce</button>
+  <button id="add-dressing">Add Dressing</button>
+  <button id="mix">Mix Ingredients</button>
+</div>
 
-            // Check for quest completion
-            if (
-                characterX >= quest.offsetLeft - 30 &&
-                characterX <= quest.offsetLeft + quest.clientWidth &&
-                characterY >= quest.offsetTop - 30 &&
-                characterY <= quest.offsetTop + quest.clientHeight
-            ) {
-                alert("You found the side quest item! Quest completed!");
-                quest.style.backgroundColor = '#00ff00'; // Indicate quest completion
-            }
-        });
-    </script>
+<script>
+  const instruction = document.getElementById("instruction");
+  const feedback = document.getElementById("feedback");
+
+  const steps = [
+    { action: "chop", text: "Step 1: Chop the vegetables." },
+    { action: "add-lettuce", text: "Step 2: Add the lettuce to the bowl." },
+    { action: "add-dressing", text: "Step 3: Pour dressing over the salad." },
+    { action: "mix", text: "Step 4: Mix everything together!" }
+  ];
+
+  let currentStep = 0;
+
+  function checkStep(action) {
+    if (action === steps[currentStep].action) {
+      feedback.textContent = "Good job!";
+      currentStep++;
+
+      if (currentStep < steps.length) {
+        instruction.textContent = steps[currentStep].text;
+      } else {
+        instruction.textContent = "Well done! You've completed the salad!";
+        feedback.textContent = "Mama's proud of you!";
+      }
+
+      updateButtons();
+    } else {
+      feedback.textContent = "Oops! That's not right.";
+    }
+  }
+
+  function updateButtons() {
+    document.querySelectorAll("button").forEach((button) => {
+      button.classList.remove("active");
+    });
+
+    if (currentStep < steps.length) {
+      document.getElementById(steps[currentStep].action).classList.add("active");
+    }
+  }
+
+  document.getElementById("chop").addEventListener("click", () => checkStep("chop"));
+  document.getElementById("add-lettuce").addEventListener("click", () => checkStep("add-lettuce"));
+  document.getElementById("add-dressing").addEventListener("click", () => checkStep("add-dressing"));
+  document.getElementById("mix").addEventListener("click", () => checkStep("mix"));
+</script>
+
 </body>
 </html>
