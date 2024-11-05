@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colorful Pong Game - Static Representation</title>
+    <title>Colorful Pong Game</title>
     <style>
         body {
             display: flex;
@@ -13,34 +13,33 @@
             background-color: #000;
             color: #fff;
             font-family: Arial, sans-serif;
+            overflow: hidden;
         }
         .pong-game {
             position: relative;
-            width: 600px;
-            height: 400px;
-            border: 3px solid #fff;
+            width: 800px;
+            height: 500px;
             background-color: #1a1a1a;
+            border: 3px solid #fff;
         }
         .paddle {
             position: absolute;
             width: 20px;
             height: 100px;
-            background-color: #ff5733; /* Paddle Color */
+            background-color: #ff5733; /* Bright paddle color */
         }
         .left-paddle {
-            left: 0;
+            left: 10px;
         }
         .right-paddle {
-            right: 0;
+            right: 10px;
         }
         .ball {
             position: absolute;
             width: 20px;
             height: 20px;
-            background-color: #33ff57; /* Ball Color */
+            background-color: #33ff57; /* Bright ball color */
             border-radius: 50%; /* Make the ball circular */
-            top: 190px; /* Initial position */
-            left: 290px; /* Initial position */
         }
         .score {
             position: absolute;
@@ -54,12 +53,100 @@
 </head>
 <body>
 
-    <div class="pong-game">
-        <div class="score">Player 1: 0 - Player 2: 0</div>
-        <div class="paddle left-paddle"></div>
-        <div class="paddle right-paddle"></div>
-        <div class="ball"></div>
+    <div class="pong-game" id="game">
+        <div class="score" id="score">Player 1: 0 - Player 2: 0</div>
+        <div class="paddle left-paddle" id="leftPaddle"></div>
+        <div class="paddle right-paddle" id="rightPaddle"></div>
+        <div class="ball" id="ball"></div>
     </div>
 
+    <script>
+        const game = document.getElementById('game');
+        const leftPaddle = document.getElementById('leftPaddle');
+        const rightPaddle = document.getElementById('rightPaddle');
+        const ball = document.getElementById('ball');
+        const scoreDisplay = document.getElementById('score');
+
+        const gameHeight = 500;
+        const gameWidth = 800;
+        const paddleHeight = 100;
+        const paddleWidth = 20;
+        const ballSize = 20;
+
+        let leftPaddleY = (gameHeight - paddleHeight) / 2;
+        let rightPaddleY = (gameHeight - paddleHeight) / 2;
+        let ballX = gameWidth / 2 - ballSize / 2;
+        let ballY = gameHeight / 2 - ballSize / 2;
+        let ballSpeedX = 4;
+        let ballSpeedY = 4;
+        let leftScore = 0;
+        let rightScore = 0;
+
+        // Paddle movement
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+            if (key === 'w' && leftPaddleY > 0) {
+                leftPaddleY -= 10;
+            } else if (key === 's' && leftPaddleY < gameHeight - paddleHeight) {
+                leftPaddleY += 10;
+            } else if (key === 'ArrowUp' && rightPaddleY > 0) {
+                rightPaddleY -= 10;
+            } else if (key === 'ArrowDown' && rightPaddleY < gameHeight - paddleHeight) {
+                rightPaddleY += 10;
+            }
+            updatePaddlePositions();
+        });
+
+        function updatePaddlePositions() {
+            leftPaddle.style.top = `${leftPaddleY}px`;
+            rightPaddle.style.top = `${rightPaddleY}px`;
+        }
+
+        // Ball movement and game logic
+        function gameLoop() {
+            // Update ball position
+            ballX += ballSpeedX;
+            ballY += ballSpeedY;
+
+            // Ball collision with top and bottom
+            if (ballY <= 0 || ballY >= gameHeight - ballSize) {
+                ballSpeedY *= -1;
+            }
+
+            // Ball collision with paddles
+            if (ballX <= paddleWidth + 10 && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
+                ballSpeedX *= -1; // Reverse direction
+            } else if (ballX >= gameWidth - paddleWidth - ballSize - 10 && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
+                ballSpeedX *= -1; // Reverse direction
+            }
+
+            // Ball out of bounds
+            if (ballX <= 0) {
+                rightScore++;
+                resetBall();
+            } else if (ballX >= gameWidth - ballSize) {
+                leftScore++;
+                resetBall();
+            }
+
+            // Update ball position
+            ball.style.left = `${ballX}px`;
+            ball.style.top = `${ballY}px`;
+
+            // Update score display
+            scoreDisplay.textContent = `Player 1: ${leftScore} - Player 2: ${rightScore}`;
+
+            requestAnimationFrame(gameLoop);
+        }
+
+        function resetBall() {
+            ballX = gameWidth / 2 - ballSize / 2;
+            ballY = gameHeight / 2 - ballSize / 2;
+            ballSpeedX *= -1; // Send ball to the opposite direction
+        }
+
+        // Start game loop
+        gameLoop();
+    </script>
 </body>
 </html>
