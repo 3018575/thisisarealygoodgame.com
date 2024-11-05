@@ -1,152 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Colorful Pong Game</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #000;
-            color: #fff;
-            font-family: Arial, sans-serif;
-            overflow: hidden;
-        }
-        .pong-game {
-            position: relative;
-            width: 800px;
-            height: 500px;
-            background-color: #1a1a1a;
-            border: 3px solid #fff;
-        }
-        .paddle {
-            position: absolute;
-            width: 20px;
-            height: 100px;
-            background-color: #ff5733; /* Bright paddle color */
-        }
-        .left-paddle {
-            left: 10px;
-        }
-        .right-paddle {
-            right: 10px;
-        }
-        .ball {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background-color: #33ff57; /* Bright ball color */
-            border-radius: 50%; /* Make the ball circular */
-        }
-        .score {
-            position: absolute;
-            top: 10px;
-            width: 100%;
-            text-align: center;
-            font-size: 24px;
-            color: #fff;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Witch Quest Game</title>
+  <style>
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: "Courier New", Courier, monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #game {
+      position: relative;
+      width: 320px;
+      height: 240px;
+      background-color: #444;
+      border: 4px solid #222;
+      image-rendering: pixelated;
+      overflow: hidden;
+    }
+    #player {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background-color: #ff00ff;
+    }
+    .npc, .quest-item {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+    }
+    .npc {
+      background-color: #00ff00;
+    }
+    .quest-item {
+      background-color: #ffff00;
+    }
+    .message {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 4px;
+      background-color: rgba(0, 0, 0, 0.8);
+      font-size: 12px;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
 
-    <div class="pong-game" id="game">
-        <div class="score" id="score">Player 1: 0 - Player 2: 0</div>
-        <div class="paddle left-paddle" id="leftPaddle"></div>
-        <div class="paddle right-paddle" id="rightPaddle"></div>
-        <div class="ball" id="ball"></div>
-    </div>
+<div id="game">
+  <div id="player"></div>
+  <div class="npc" id="npc1" style="top: 60px; left: 220px;"></div>
+  <div class="quest-item" id="item1" style="top: 120px; left: 100px;"></div>
+  <div class="message" id="message">Find the magic herb and talk to the NPC!</div>
+</div>
 
-    <script>
-        const game = document.getElementById('game');
-        const leftPaddle = document.getElementById('leftPaddle');
-        const rightPaddle = document.getElementById('rightPaddle');
-        const ball = document.getElementById('ball');
-        const scoreDisplay = document.getElementById('score');
+<script>
+  const player = document.getElementById("player");
+  const npc1 = document.getElementById("npc1");
+  const item1 = document.getElementById("item1");
+  const message = document.getElementById("message");
 
-        const gameHeight = 500;
-        const gameWidth = 800;
-        const paddleHeight = 100;
-        const paddleWidth = 20;
-        const ballSize = 20;
+  let level = 1;
+  let playerX = 10;
+  let playerY = 10;
+  let hasHerb = false;
 
-        let leftPaddleY = (gameHeight - paddleHeight) / 2;
-        let rightPaddleY = (gameHeight - paddleHeight) / 2;
-        let ballX = gameWidth / 2 - ballSize / 2;
-        let ballY = gameHeight / 2 - ballSize / 2;
-        let ballSpeedX = 4;
-        let ballSpeedY = 4;
-        let leftScore = 0;
-        let rightScore = 0;
+  const moveSpeed = 4;
 
-        // Paddle movement
-        document.addEventListener('keydown', (event) => {
-            const key = event.key;
-            if (key === 'w' && leftPaddleY > 0) {
-                leftPaddleY -= 10;
-            } else if (key === 's' && leftPaddleY < gameHeight - paddleHeight) {
-                leftPaddleY += 10;
-            } else if (key === 'ArrowUp' && rightPaddleY > 0) {
-                rightPaddleY -= 10;
-            } else if (key === 'ArrowDown' && rightPaddleY < gameHeight - paddleHeight) {
-                rightPaddleY += 10;
-            }
-            updatePaddlePositions();
-        });
+  function checkCollision(rect1, rect2) {
+    return (
+      rect1.left < rect2.right &&
+      rect1.right > rect2.left &&
+      rect1.top < rect2.bottom &&
+      rect1.bottom > rect2.top
+    );
+  }
 
-        function updatePaddlePositions() {
-            leftPaddle.style.top = `${leftPaddleY}px`;
-            rightPaddle.style.top = `${rightPaddleY}px`;
-        }
+  function updateMessage(text) {
+    message.textContent = text;
+  }
 
-        // Ball movement and game logic
-        function gameLoop() {
-            // Update ball position
-            ballX += ballSpeedX;
-            ballY += ballSpeedY;
+  function movePlayer(dx, dy) {
+    playerX += dx;
+    playerY += dy;
+    player.style.left = `${playerX}px`;
+    player.style.top = `${playerY}px`;
 
-            // Ball collision with top and bottom
-            if (ballY <= 0 || ballY >= gameHeight - ballSize) {
-                ballSpeedY *= -1;
-            }
+    const playerRect = player.getBoundingClientRect();
+    const npcRect = npc1.getBoundingClientRect();
+    const itemRect = item1.getBoundingClientRect();
 
-            // Ball collision with paddles
-            if (ballX <= paddleWidth + 10 && ballY + ballSize >= leftPaddleY && ballY <= leftPaddleY + paddleHeight) {
-                ballSpeedX *= -1; // Reverse direction
-            } else if (ballX >= gameWidth - paddleWidth - ballSize - 10 && ballY + ballSize >= rightPaddleY && ballY <= rightPaddleY + paddleHeight) {
-                ballSpeedX *= -1; // Reverse direction
-            }
+    // Check if player collects the herb
+    if (!hasHerb && checkCollision(playerRect, itemRect)) {
+      hasHerb = true;
+      item1.style.display = "none";
+      updateMessage("You found the herb! Now talk to the NPC.");
+    }
 
-            // Ball out of bounds
-            if (ballX <= 0) {
-                rightScore++;
-                resetBall();
-            } else if (ballX >= gameWidth - ballSize) {
-                leftScore++;
-                resetBall();
-            }
+    // Check if player talks to NPC
+    if (hasHerb && checkCollision(playerRect, npcRect)) {
+      updateMessage(`Level ${level} complete! Get ready for the next quest.`);
+      nextLevel();
+    }
+  }
 
-            // Update ball position
-            ball.style.left = `${ballX}px`;
-            ball.style.top = `${ballY}px`;
+  function nextLevel() {
+    level++;
+    hasHerb = false;
+    item1.style.display = "block";
 
-            // Update score display
-            scoreDisplay.textContent = `Player 1: ${leftScore} - Player 2: ${rightScore}`;
+    // Increase difficulty by adding more NPCs or items
+    if (level > 5) {
+      updateMessage("Congratulations! You completed all levels!");
+    } else {
+      playerX = 10;
+      playerY = 10;
+      updateMessage(`Level ${level}: Find the new item and talk to the NPC!`);
+    }
+  }
 
-            requestAnimationFrame(gameLoop);
-        }
+  document.addEventListener("keydown", (e) => {
+    switch (e.key) {
+      case "ArrowUp":
+      case "w":
+        movePlayer(0, -moveSpeed);
+        break;
+      case "ArrowDown":
+      case "s":
+        movePlayer(0, moveSpeed);
+        break;
+      case "ArrowLeft":
+      case "a":
+        movePlayer(-moveSpeed, 0);
+        break;
+      case "ArrowRight":
+      case "d":
+        movePlayer(moveSpeed, 0);
+        break;
+    }
+  });
+</script>
 
-        function resetBall() {
-            ballX = gameWidth / 2 - ballSize / 2;
-            ballY = gameHeight / 2 - ballSize / 2;
-            ballSpeedX *= -1; // Send ball to the opposite direction
-        }
-
-        // Start game loop
-        gameLoop();
-    </script>
 </body>
 </html>
